@@ -81,7 +81,8 @@ class TasksManager
 
     remove(id)
     {
-        this.tasks = this.tasks.filter(task => task.id !== id);
+        this.tasks = this.tasks.filter(task => task.id != id);
+        this.saveToStorage();
     }
 
     saveToStorage()
@@ -102,6 +103,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("list-form");
 
     const tasksBody = document.getElementById("tasks-body");
+
+    const youSuremodal = document.getElementById("youSure");
+
     const manager = new TasksManager();
 
     manager.loadFromStorage();
@@ -115,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const taskName = form.querySelector("#name-input").value.trim();
         const taskDesc = form.querySelector("#description-input").value.trim();
-        const taskDeadline = new Date(form.querySelector("#deadline-input").value);
+        const taskDeadline = new Date(form.querySelector("#deadline-input").value.trim());
 
         if(!taskName || !taskDesc || !taskDeadline)
         {
@@ -137,11 +141,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function addTaskToTable(task)
     {
+        //Creates a new row element, modifies its html to fit the task added,
+        //then adds it to the tbody of the table.
         const row = document.createElement("tr");
         row.innerHTML = `
             <td>${task.name}</td> 
             <td>${formatDate(task.date)}</td> 
             <td>${formatDate(task.deadline)}</td> 
+            <td>
+                <input type="checkbox" class="complete-input" id="complete-input"></input>
+            </td> 
             <td>
                 <button class="delete-btn" data-index="${task.id}">Delete</button>
                 <button class="edit-btn" data-index="${task.id}">Edit</button>
@@ -150,4 +159,45 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
         tasksBody.appendChild(row);
     }
+
+    tasksBody.addEventListener("click", (e) => {
+        const btn = e.target;
+        //returns the location of the element on the screen
+        const bounds = btn.getBoundingClientRect();
+
+        const taskId = btn.dataset.index;
+        if(btn.classList.contains("delete-btn"))
+        {
+            console.log("deleteworks");
+            manager.remove(taskId);
+            btn.closest("tr").remove();
+        }
+        else if(btn.classList.contains("edit-btn"))
+        {
+
+        }
+        else if(btn.classList.contains("details-btn"))
+        {
+            
+        }
+        else if(btn.classList.contains("complete-input"))
+        {
+            youSuremodal.style.left = `${bounds.left + window.scrollX - 245}px`;
+            youSuremodal.style.top = `${bounds.top + window.scrollY - 100}px`;
+            youSuremodal.classList.add("show");
+        }
+    })
+
+    youSuremodal.addEventListener("click", (e) => {
+        const btn = e.target;
+        if(btn.classList.contains("yesBtn"))
+        {
+
+        }
+        else if(btn.classList.contains("noBtn"))
+        {
+            youSuremodal.classList.remove("show");
+        }
+    })
+
 })
