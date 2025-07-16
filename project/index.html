@@ -11,19 +11,18 @@
 <body>
     <div class="container">
         <h1>To Do List</h1>
-        <h1>Change test</h1>
         <div class="form-container">
             <form id="list-form">
                 <div class="form-group">
-                    <label for="name">Task Name:</label>
+                    <label for="name-input">Task Name:</label>
                     <input type="text" id="name-input" required>
                 </div>
                 <div class="form-group">
-                    <label for="description">Task Description:</label>
+                    <label for="description-input">Task Description:</label>
                     <input type="text" id="description-input" required>
                 </div>
                 <div class="form-group">
-                    <label for="deadline">Task Deadline:</label>
+                    <label for="deadline-input">Task Deadline:</label>
                     <input type="datetime-local" id="deadline-input" required>
                 </div>
                 <button id="add-btn" type="submit">Add Task</button>
@@ -32,17 +31,26 @@
 
 
         <div class="tasks-list">
-            <h2>Tasks List</h2>
+            <h2>Task List</h2>
             <table class="tasks-table">
                 <thead>
                     <tr>
                         <th>Name</th>
                         <th>Date Added</th>
                         <th>Deadline</th>
+                        <th>Task Complete?</th>
                     </tr>
                 </thead>
                 <tbody id="tasks-body"></tbody>
             </table>
+        </div>
+        
+        <div class="youSureModal hidden" id="youSure">
+            <h3>Are you sure you want to mark as complete?</h3>
+            <div class="insideYouSure">
+                <button id="yesBtn" class="yesBtn">Yes</button>
+                <button id="noBtn" class="noBtn">No</button>
+            </div>
         </div>
     </div>
 
