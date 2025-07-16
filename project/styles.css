@@ -1,0 +1,136 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+}
+
+body{
+    background-color: rgb(29, 36, 36);
+    padding: 10px;
+}
+
+.container{
+    /*max-width: 1200px;*/
+    width: 50%;
+    margin: 0 auto;
+    background-color: rgb(54, 63, 63);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1{
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.form-container{
+    padding: 15px;
+    background-color: rgb(70, 86, 86);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+
+
+.form-group{
+    margin-bottom: 15px;
+}
+
+label{
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+input{
+    width: 100%;
+    padding: 7px;
+    font-size: 1rem;
+    border: 1px solid #1a1818;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0 ,0 ,0.1 );
+    color: black;
+}
+
+
+#add-btn{
+    background-color: rgb(75, 149, 149);
+    width: 100%;
+    padding: 7px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0 ,0 ,0.1 );
+    font-size: 1rem;
+}
+
+#add-btn:hover{
+    background-color: rgb(97, 191, 191);
+    cursor: pointer;
+}
+
+h2{
+    text-align: center;
+    font-size: 1.7rem;
+}
+.tasks-list{
+    padding: 15px;
+    background-color: rgb(70, 86, 86);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.tasks-table{
+    width: 100%;
+    border-collapse: collapse;
+    border: 5px;
+    margin-top: 15px;
+    font-size: 1rem;
+}
+
+th{
+    text-align: center; 
+    margin-bottom: 10px;
+}
+
+tr td{
+   text-align: center; 
+   margin-bottom: 10px;
+}
+
+td:hover{
+    cursor: pointer;
+}
+
+.delete-btn{
+    background-color: red;
+    margin-right: 5px;
+    margin-bottom: 10px;
+    padding: 5px;
+    width: 15%;
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+.edit-btn{
+    background-color: rgb(50, 18, 214);
+    margin-right: 5px;
+    padding: 5px;
+    width: 15%;
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+.details-btn{
+    background-color: rgb(24, 151, 7);
+    width: 25%;
+    padding: 5px;
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+.delete-btn,.edit-btn,.details-btn:hover{
+    cursor: pointer;
+}

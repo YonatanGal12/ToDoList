@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To do list</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="helper.js" type="module" defer></script>
+    <script src="project.js" type="module" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>To Do List</h1>
+        <div class="form-container">
+            <form id="list-form">
+                <div class="form-group">
+                    <label for="name">Task Name:</label>
+                    <input type="text" id="name-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Task Description:</label>
+                    <input type="text" id="description-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="deadline">Task Deadline:</label>
+                    <input type="datetime-local" id="deadline-input" required>
+                </div>
+                <button id="add-btn" type="submit">Add Task</button>
+            </form>
+        </div>
+
+
+        <div class="tasks-list">
+            <h2>Tasks List</h2>
+            <table class="tasks-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Date Added</th>
+                        <th>Deadline</th>
+                    </tr>
+                </thead>
+                <tbody id="tasks-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+
+</body>
+</html>
