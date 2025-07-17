@@ -1,109 +1,16 @@
 
-
 import { formatDate , toLocalDatetimeString} from "./helper.js";
+import { subTask , Task } from "./task.js";
+import { TasksManager } from './manager.js';
 
-class subTasks
-{
-    constructor(name,description,deadline,date = new Date())
-    {
-        this.name = name;
-        this.description = description;
-        this.completed = false;
-        this.deadline = deadline;
-        this.date = date;
-    }
 
-    complete()
-    {
-        this.completed = true;
-    }
 
-    toObject()
-    {
-        return{
-            name: this.name,
-            description: this.description,
-            completed: this.completed,
-            deadline: this.deadline,
-            date: this.date
-        }
-    }
-}
-
-class Task
-{
-    static _lastId = 0;
-    constructor(name, description, deadline, subTasks = [], completed = false,date = new Date())
-    {
-        this.id = ++Task._lastId;
-        this.subTasks = subTasks;
-        this.name = name;
-        this.description = description;
-        this.completed = completed;
-        this.deadline = deadline;
-        this.date = date;
-    }
-
-    addSubTask(subTask)
-    {
-        this.subTasks.push(subTask);
-    }
-
-    removeSubTask(id)
-    {
-        this.subTasks = this.subTasks.filter(sub => sub.id !== id);
-    }
-
-    toObject() 
-    {
-        return {
-            id: this.id,
-            subTasks: this.subTasks,
-            name: this.name,
-            description: this.description,
-            deadline: this.deadline,
-            date: this.date, 
-        };
-    }
-}
-class TasksManager
-{
-    constructor()
-    {
-        this.tasks = []
-    }
-
-    add(task)
-    {
-        this.tasks.push(task);
-        this.saveToStorage();
-    }
-
-    remove(id)
-    {
-        this.tasks = this.tasks.filter(task => task.id != id);
-        this.saveToStorage();
-    }
-
-    saveToStorage()
-    {
-        localStorage.setItem("tasks",JSON.stringify(this.tasks));
-    }
-
-    loadFromStorage()
-    {
-        const loaded = JSON.parse(localStorage.getItem("tasks")) || [];
-        this.tasks = loaded.map(task => new Task(task.name,  task.description,
-            task.deadline, task.subTasks, task.completed, task.date
-        ));//When you save to local storage, methods get lost, so I create new tasks.
-    }
-}
 
 document.addEventListener("DOMContentLoaded", () => {
 
     //Represents the form
     const form = document.getElementById("list-form");
-
+    const editForm = document.getElementById("edit-form");
     //Represents that table's body
     const tasksBody = document.getElementById("tasks-body");
 
@@ -112,8 +19,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const editModal = document.getElementById("editModal");
 
 
-    //An element the followes the last clicked checkbox
+    //Elements I need for stuff
     let lastClickedCheckbox = null;
+    let taskIdBeingEdited = null;
+
+
 
     const manager = new TasksManager();
     manager.loadFromStorage();
@@ -143,7 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const task = new Task(taskName,taskDesc,taskDeadline);
         manager.add(task);
-        addTaskToTable(task);
+        //addTaskToTable(task);
+        applySort();
         form.reset();
     })
 
@@ -166,8 +77,33 @@ document.addEventListener("DOMContentLoaded", () => {
             </td>
         `;
         tasksBody.appendChild(row);
+        return row;
     }
 
+    function deleteAllTable()
+    {
+        tasksBody.innerHTML = '';
+    }
+    function addRowsBelowTask(row, task)
+    {
+        task.subTasks.forEach((sub) => {
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${sub.name}</td> 
+                <td>${formatDate(sub.date)}</td> 
+                <td>${formatDate(sub.deadline)}</td> 
+                <td>
+                    <input type="checkbox" class="complete-input" data-index="${sub.id} id="complete-input"></input>
+                </td> 
+                <td>
+                    <button class="delete-btn" data-index="${sub.id}">Delete</button>
+                    <button class="edit-btn" data-index="${sub.id}">Edit</button>
+                    <button class="details-btn" data-index="${sub.id}">View Details</button>
+                </td>
+            `
+            row.parentNode.insertBefore(newRow,row.nextSibling);
+        })
+    }
 
     tasksBody.addEventListener("click", (e) => {
         const btn = e.target;
@@ -182,10 +118,15 @@ document.addEventListener("DOMContentLoaded", () => {
         else if(btn.classList.contains("edit-btn"))
         {
 
-            const taskToEdit = manager.tasks.find((task) => task.id === taskId)
+            const taskToEdit = manager.tasks.find((task) => task.id === taskId);
+            if (!taskToEdit) return;
+
+            taskIdBeingEdited = taskId;
+
             document.getElementById("edit-name-input").value = taskToEdit.name;
             document.getElementById("edit-description-input").value = taskToEdit.description;
-            document.getElementById("edit-deadline-input").value = toLocalDatetimeString(taskToEdit.deadline);
+            document.getElementById("edit-deadline-input").value = new Date(taskToEdit.deadline);
+
 
             const bounds = btn.getBoundingClientRect();
             editModal.style.left = `${bounds.left + window.scrollX - 95}px`;
@@ -194,7 +135,31 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         else if(btn.classList.contains("details-btn"))
         {
-            
+            if(btn.textContent.includes('View'))
+            {
+                const taskToShow = manager.tasks.find((task) => task.id === taskId)
+                if (!taskToShow) return;
+
+                taskToShow.addSubTask(new subTask("blah","blahblah", new Date()));
+                taskToShow.addSubTask(new subTask("blah1111","blahblah1111", new Date()));
+                addRowsBelowTask(btn.closest("tr"), taskToShow);
+                btn.textContent = "Hide Details";
+            }
+            else
+            {
+                deleteAllTable();
+                manager.tasks.forEach((task) => {
+                    if (task.id !== taskId) 
+                    {
+                        const row = addTaskToTable(task);
+                        addRowsBelowTask(row, task); 
+                    } else 
+                    {
+                        addTaskToTable(task); 
+                    }
+                });
+                btn.textContent = "View Details";
+            }
         }
         else if(btn.classList.contains("complete-input"))
         {
@@ -244,14 +209,37 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 
     editModal.addEventListener("click", (e) => {
+        e.preventDefault();
         const btn = e.target;
-        if(btn.classList.contains("confirmBtn"))
+
+        if(btn.classList.contains("confirm-btn"))
         {
-            
+            const taskName = editForm.querySelector("#edit-name-input").value.trim();
+            const taskDesc = editForm.querySelector("#edit-description-input").value.trim();
+            const taskDeadline = new Date(editForm.querySelector("#edit-deadline-input").value.trim());
+
+            if(!taskName || !taskDesc || !taskDeadline)
+            {
+                console.error("Invalid inputs. Please try again.");
+                return;
+            }
+
+            //If deadline is before today, it's invalid.
+            if(taskDeadline < new Date())
+            {
+                console.error("Cannot go back in time.");
+                return;
+            }
+            manager.editTask(taskIdBeingEdited,taskName,taskDesc,taskDeadline);
+            //deleteAllTable();
+            //manager.tasks.forEach((t) => addTaskToTable(t));
+            applySort();
+            editModal.classList.remove("show");
         }
-        else if(btn.classList.contains("noBtn"))
+        else if(btn.classList.contains("cancel-btn"))
         {
-            
+            taskIdBeingEdited = null;
+            editModal.classList.remove("show");
         }
     })
 
@@ -272,4 +260,30 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         },1)
     })
+
+
+    const sortSelect = document.getElementById("sort-select");
+    sortSelect.addEventListener("change",applySort);
+
+    function applySort()
+    {
+        if(sortSelect.value === "name")
+        {
+            const sorted = manager.tasks.sort((a,b) => a.name.localeCompare(b.name));
+            deleteAllTable();
+            sorted.forEach((t) => addTaskToTable(t));
+        }
+        else if(sortSelect.value === "dateAdded")
+        {
+            const sorted = manager.tasks.sort((a,b) => new Date(a.date) - new Date(b.date));
+            deleteAllTable();
+            sorted.forEach((t) => addTaskToTable(t));
+        }
+        else if(sortSelect.value === "deadline")
+        {
+            const sorted = manager.tasks.sort((a,b) => new Date(a.deadline) - new Date(b.deadline));
+            deleteAllTable();
+            sorted.forEach((t) => addTaskToTable(t));
+        }
+    }
 })
