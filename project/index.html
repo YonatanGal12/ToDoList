@@ -32,6 +32,11 @@
 
         <div class="tasks-list">
             <h2>Task List</h2>
+            <select name="filterSelect" id="filterSelect">
+                <option value="all">Show All Tasks</option>
+                <option value="complete">Show Completed Tasks Only</option>
+                <option value="incomplete">Show Incmpleted Tasks Only</option>
+            </select>
             <table class="tasks-table">
                 <thead>
                     <tr>
@@ -50,6 +55,28 @@
             <div class="insideYouSure">
                 <button id="yesBtn" class="yesBtn">Yes</button>
                 <button id="noBtn" class="noBtn">No</button>
+            </div>
+        </div>
+
+        <div class="editModal hidden" id="editModal">
+            <h3>Edit Task</h3>
+            <div class="edit-modal-container">
+                <div class="form-group">
+                    <label for="edit-name-input">Task Name:</label>
+                    <input type="text" id="edit-name-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-description-input">Task Description:</label>
+                    <input type="text" id="edit-description-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-deadline-input">Task Deadline:</label>
+                    <input type="datetime-local" id="edit-deadline-input" required>
+                </div>
+                <div class="btnContainer">
+                    <button id="confirm-btn" class="confirm-btn">Confirm</button>
+                    <button id="cancel-btn" class="cancel-btn">Cancel</button>
+                </div>
             </div>
         </div>
     </div>

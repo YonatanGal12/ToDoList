@@ -12,6 +12,7 @@ body{
 }
 
 .container{
+    min-width: 1200px;
     width: 50%;
     margin: 0 auto;
     background-color: rgb(54, 63, 63);
@@ -81,6 +82,15 @@ h2{
     margin-bottom: 20px;
 }
 
+
+#filterSelect{
+    background-color: rgb(70, 86, 86);
+    padding: 5px;
+    display: inline;
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
 .tasks-table{
     width: 100%;
     border-collapse: collapse;
@@ -127,15 +137,15 @@ tr td{
     border-radius: 5px;
 }
 
-.delete-btn,.edit-btn,.details-btn,#complete-input,#yesBtn,#noBtn:hover{
+.delete-btn,.edit-btn,.details-btn,#yesBtn,#noBtn:hover{
     cursor: pointer;
 }
 
 #complete-input{
-    background-color: red;
+    background-color: rgb(70, 86, 86);
     width: 5%;
-    transform: scale(2);
 }
+
 
 .hidden{
     display: none;
@@ -144,6 +154,8 @@ tr td{
 .show{
     display: block;
 }
+
+
 
 .youSureModal{
     position: absolute;
@@ -179,3 +191,55 @@ h3{
     padding: 5px;
     width: 10%;
 }
+
+.completed-row {
+  text-decoration: line-through;
+  color: gray;
+  opacity: 0.6;
+}
+
+.completed-row input[type="checkbox"] {
+  pointer-events: none;
+}
+
+.editModal{
+    position: absolute;
+    padding: 10px;
+    background-color: rgb(54, 63, 63);
+    border: 1px solid black;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.btnContainer{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+#confirm-btn{
+    background-color: rgb(24, 151, 7);
+    width: 40%;
+    padding: 7px;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+#cancel-btn{
+    background-color: rgb(181, 23, 23);
+    width: 40%;
+    padding: 7px;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+#confirm-btn:hover{
+    background-color: rgb(28, 178, 8);
+    cursor: pointer;
+}
+
+#cancel-btn:hover{
+    background-color: red;
+    cursor: pointer;
+}
+
