@@ -83,7 +83,7 @@ h2{
 }
 
 
-#filterSelect, #sort-select{
+#filter-select, #sort-select{
     background-color: rgb(70, 86, 86);
     padding: 5px;
     display: inline;
@@ -142,7 +142,15 @@ tr td{
     border-radius: 5px;
 }
 
-.delete-btn,.edit-btn,.details-btn,#yesBtn,#noBtn:hover{
+.add-sub-btn{
+    background-color: rgb(75, 149, 149);
+    width: 125px;
+    padding: 5px;
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+.delete-btn,.edit-btn,.details-btn,.add-sub-btn,#yesBtn,#noBtn:hover{
     cursor: pointer;
 }
 
