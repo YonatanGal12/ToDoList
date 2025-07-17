@@ -16,8 +16,9 @@ export class TasksManager {
     }
 
     markComplete(id) {
-        const task = this.tasks.find(t => t.id === id);
+        const task = this.tasks.find((t) => t.id == id);
         if (task) {
+            console.log("task id:" + task.id);
             task.completed = true;
             this.saveToStorage();
         }
@@ -42,8 +43,13 @@ export class TasksManager {
 
     loadFromStorage() {
         const raw = JSON.parse(localStorage.getItem("tasks")) || [];
-        this.tasks = raw.map(t => new Task(
-            t.name, t.description, t.deadline, t.subTasks, t.completed, t.date
-        ));
+        this.tasks = raw.map(t => {
+            const restoredSubTasks = (t.subTasks || []).map(s =>
+            new subTask(s.name, s.description, s.deadline, s.completed, s.date)
+            );
+            return new Task(
+            t.name, t.description, t.deadline, restoredSubTasks, t.completed, t.date
+            );
+        });
     }
 }

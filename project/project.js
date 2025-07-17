@@ -63,17 +63,24 @@ document.addEventListener("DOMContentLoaded", () => {
         //Creates a new row element, modifies its html to fit the task added,
         //then adds it to the tbody of the table.
         const row = document.createElement("tr");
+
+        if (task.completed) 
+        {
+            row.classList.add("completed-row");
+        }
+
         row.innerHTML = `
             <td>${task.name}</td> 
             <td>${formatDate(task.date)}</td> 
             <td>${formatDate(task.deadline)}</td> 
             <td>
-                <input type="checkbox" class="complete-input" data-index="${task.id} id="complete-input"></input>
+                <input type="checkbox" class="complete-input" data-type="task" data-index="${task.id}" id="complete-input">
             </td> 
             <td>
                 <button class="delete-btn" data-index="${task.id}">Delete</button>
                 <button class="edit-btn" data-index="${task.id}">Edit</button>
                 <button class="details-btn" data-index="${task.id}">View Details</button>
+                <button class="add-sub-btn" data-index="${task.id}">Add SubTask</button>
             </td>
         `;
         tasksBody.appendChild(row);
@@ -84,16 +91,22 @@ document.addEventListener("DOMContentLoaded", () => {
     {
         tasksBody.innerHTML = '';
     }
+
     function addRowsBelowTask(row, task)
     {
         task.subTasks.forEach((sub) => {
             const newRow = document.createElement('tr');
+
+            if (sub.completed) 
+            {
+                row.classList.add("completed-row");
+            }
             newRow.innerHTML = `
                 <td>${sub.name}</td> 
                 <td>${formatDate(sub.date)}</td> 
                 <td>${formatDate(sub.deadline)}</td> 
                 <td>
-                    <input type="checkbox" class="complete-input" data-index="${sub.id} id="complete-input"></input>
+                    <input type="checkbox" class="complete-input" data-type="subTask" data-index="${sub.id} id="complete-input">
                 </td> 
                 <td>
                     <button class="delete-btn" data-index="${sub.id}">Delete</button>
@@ -192,8 +205,23 @@ document.addEventListener("DOMContentLoaded", () => {
         const btn = e.target;
         if(btn.classList.contains("yesBtn"))
         {
+
+            const taskId = Number(lastClickedCheckbox.dataset.index);
+            const type = lastClickedCheckbox.dataset.type;
+
+            console.log(taskId);
             lastClickedCheckbox.closest("tr").classList.add("completed-row")
             lastClickedCheckbox.checked = true;
+
+            if (type === "task") 
+            {
+                manager.markComplete(taskId);
+            } 
+            else 
+            {
+                console.log("Subtask clicked, not handled in markComplete.");
+            }
+
             lastClickedCheckbox = null;
             youSuremodal.classList.remove("show");
         }
@@ -231,8 +259,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
             manager.editTask(taskIdBeingEdited,taskName,taskDesc,taskDeadline);
-            //deleteAllTable();
-            //manager.tasks.forEach((t) => addTaskToTable(t));
             applySort();
             editModal.classList.remove("show");
         }
@@ -284,6 +310,30 @@ document.addEventListener("DOMContentLoaded", () => {
             const sorted = manager.tasks.sort((a,b) => new Date(a.deadline) - new Date(b.deadline));
             deleteAllTable();
             sorted.forEach((t) => addTaskToTable(t));
+        }
+    }
+
+    const whatToShow = document.getElementById("filter-select");
+    whatToShow.addEventListener("change", showRightTasks);
+    function showRightTasks()
+    {
+        if(sortSelect.value === "complete")
+        {
+            const showed = manager.tasks.filter((task) => task.completed);
+            deleteAllTable();
+            showed.forEach((t) => addTaskToTable(t));
+        }
+        else if(sortSelect.value === "incomplete")
+        {
+            const showed = manager.tasks.filter((task) => !task.completed);
+            deleteAllTable();
+            showed.forEach((t) => addTaskToTable(t));
+        }
+        else
+        {
+            const showed = manager.tasks;
+            deleteAllTable();
+            showed.forEach((t) => addTaskToTable(t));
         }
     }
 })

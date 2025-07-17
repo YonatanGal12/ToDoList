@@ -31,9 +31,9 @@ export class subTask {
 export class Task 
 {
     static _lastId = 0;
-    constructor(name, description, deadline, subTasks = [], completed = false, date = new Date()) 
+    constructor(name, description, deadline, subTasks = [], completed = false, date = new Date(), id = null) 
     {
-        this.id = ++Task._lastId;
+        this.id = id ?? ++Task._lastId;
         this.subTasks = subTasks;
         this.name = name;
         this.description = description;
