@@ -17,7 +17,8 @@ export class TasksManager {
 
     markComplete(id) {
         const task = this.tasks.find((t) => t.id == id);
-        if (task) {
+        if (task)
+        {
             console.log("task id:" + task.id);
             task.completed = true;
             this.saveToStorage();
