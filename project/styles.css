@@ -282,6 +282,7 @@ input[type="datetime-local"] {
     background-color: white;
     cursor: text;
 }
+
 *:focus {
     outline: 2px solid rgb(75, 149, 149);
 }

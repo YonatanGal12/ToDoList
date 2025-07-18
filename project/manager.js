@@ -52,7 +52,7 @@ export class TasksManager {
                     t.id
                 );
 
-                task.subTasks = t.subTasks.map(st => {
+                task.subTasks = (t.subTasks || []).map(st => {
                     const sub = new subTask(
                         st.name,
                         st.description,
