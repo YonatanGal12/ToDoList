@@ -287,3 +287,11 @@ input[type="datetime-local"] {
     outline: 2px solid rgb(75, 149, 149);
 }
 
+.time-passed{
+    text-decoration: line-through;
+    color: red;
+    opacity: 0.6;
+}
+
+
+

@@ -64,11 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function addTaskToTable(task)
     {
-        //Creates a new row element, modifies its html to fit the task added,
-        //then adds it to the tbody of the table.
         const row = document.createElement("tr");
-
-
 
         if (task.completed) 
         {
@@ -103,6 +99,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     <button class="add-sub-btn" data-index="${task.id}">Add SubTask</button>
                 </td>
             `;
+
+            const deadlineDate = new Date(task.deadline);
+            const now = new Date();
+            const isOverdue = deadlineDate < now;
+
+            if (isOverdue) 
+            {
+                row.classList.add("time-passed");
+            }
         }
 
         const detailsBtn = row.querySelector(".details-btn");
@@ -118,47 +123,57 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function addRowsBelowTask(row, task)
-    {
-        let lastInserted = row;
-        task.subTasks.forEach((sub) => {
-            const newRow = document.createElement('tr');
+{
+    let lastInserted = row;
+    const now = new Date();
 
-            newRow.classList.add("sub-row")
-            if (sub.completed) 
-            {
-                newRow.innerHTML = `
-                    <td>${sub.name}</td> 
-                    <td>${formatDate(sub.date)}</td> 
-                    <td>${formatDate(sub.deadline)}</td> 
-                    <td>
-                        <input type="checkbox" class="sub complete-input" data-type="subTask" data-index="${sub.id}" data-parent="${task.id}">
-                    </td> 
-                    <td>
-                        <button class="sub delete-btn" data-type="subTask" data-index="${sub.id}" data-parent="${task.id}">Delete</button>
-                    </td>
-                `;
-                newRow.classList.add("completed-row");
-                newRow.querySelector(".complete-input").checked = true;
-            }
-            else
-            {
-                newRow.innerHTML = `
-                    <td>${sub.name}</td> 
-                    <td>${formatDate(sub.date)}</td> 
-                    <td>${formatDate(sub.deadline)}</td> 
-                    <td>
-                        <input type="checkbox" class="sub complete-input" data-type="subTask" data-index="${sub.id}" data-parent="${task.id}">
-                    </td> 
-                    <td>
-                        <button class="sub delete-btn" data-type="subTask" data-index="${sub.id}" data-parent="${task.id}">Delete</button>
-                        <button class="sub edit-btn" data-type="subTask" data-index="${sub.id}" data-parent="${task.id}">Edit</button>
-                    </td>
-                `;
-            }
-            lastInserted.insertAdjacentElement("afterend", newRow);
-            lastInserted = newRow;
-        })
-    }
+    task.subTasks.forEach((sub) => {
+        const newRow = document.createElement('tr');
+        newRow.classList.add("sub-row");
+
+        const deadlineDate = new Date(sub.deadline);
+        const isOverdue = deadlineDate < now;
+
+        if (isOverdue && !sub.completed) {
+            newRow.classList.add("time-passed");
+        }
+
+        if (sub.completed) 
+        {
+            newRow.innerHTML = `
+                <td>${sub.name}</td> 
+                <td>${formatDate(sub.date)}</td> 
+                <td>${formatDate(sub.deadline)}</td> 
+                <td>
+                    <input type="checkbox" class="sub complete-input" data-type="subTask" data-index="${sub.id}" data-parent="${task.id}">
+                </td> 
+                <td>
+                    <button class="sub delete-btn" data-type="subTask" data-index="${sub.id}" data-parent="${task.id}">Delete</button>
+                </td>
+            `;
+            newRow.classList.add("completed-row");
+            newRow.querySelector(".complete-input").checked = true;
+        }
+        else
+        {
+            newRow.innerHTML = `
+                <td>${sub.name}</td> 
+                <td>${formatDate(sub.date)}</td> 
+                <td>${formatDate(sub.deadline)}</td> 
+                <td>
+                    <input type="checkbox" class="sub complete-input" data-type="subTask" data-index="${sub.id}" data-parent="${task.id}">
+                </td> 
+                <td>
+                    <button class="sub delete-btn" data-type="subTask" data-index="${sub.id}" data-parent="${task.id}">Delete</button>
+                    <button class="sub edit-btn" data-type="subTask" data-index="${sub.id}" data-parent="${task.id}">Edit</button>
+                </td>
+            `;
+        }
+
+        lastInserted.insertAdjacentElement("afterend", newRow);
+        lastInserted = newRow;
+    });
+}
 
     tasksBody.addEventListener("click", (e) => {
         const btn = e.target;
@@ -228,6 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
             {
                 manager.remove(taskId);
                 btn.closest("tr").remove();
+                applyAllFilters();
             }
             else if(btn.classList.contains("edit-btn"))
             {
@@ -530,4 +546,33 @@ document.addEventListener("DOMContentLoaded", () => {
                 addRowsBelowTask(row,task);
         });
     }
+
+    function checkEveryMinute() 
+    {
+        const rows = document.querySelectorAll("#tasks-body tr");
+
+        rows.forEach(row => {
+            const cells = row.querySelectorAll("td");
+            if (cells.length < 3) return;
+
+            const deadlineText = cells[2].textContent.trim();
+            const deadline = new Date(deadlineText);
+            console.log(deadline);
+            if (!isNaN(deadline.getTime())) {
+                if (deadline <= new Date()) {
+                    row.classList.add("time-passed");
+                } else {
+                    row.classList.remove("time-passed");
+                }
+            }
+        });
+
+        applyAllFilters(); 
+    }
+
+    // Run on page load
+    checkEveryMinute();
+
+    // Then repeat every minute
+    setInterval(checkEveryMinute, 60000);
 })
