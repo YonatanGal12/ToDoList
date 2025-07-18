@@ -20,6 +20,9 @@ export class TasksManager {
         const task = this.tasks.find(task => task.id === id);
         if (task) {
             task.completed = true;
+            task.subTasks.forEach(sub => {
+                sub.completed = true;
+            });
             this.saveToStorage();
         }
     }

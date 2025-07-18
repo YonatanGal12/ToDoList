@@ -7,7 +7,7 @@ export function formatDate(date, seperator = '/')
     const year = String(d.getFullYear());
     const hour = String(d.getHours()).padStart(2,"0");
     const minute = String(d.getMinutes()).padStart(2,"0");
-    return `${month}${seperator}${day}${seperator}${year}  ${hour}:${minute}`;
+    return `${day}${seperator}${month}${seperator}${year}  ${hour}:${minute}`;
 }
 
 export function toLocalDatetimeString(dateInput) {
