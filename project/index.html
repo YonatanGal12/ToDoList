@@ -17,15 +17,15 @@
             <form id="list-form">
                 <div class="form-group">
                     <label for="name-input">Task Name:</label>
-                    <input type="text" id="name-input" required>
+                    <input type="text" id="name-input" name="task-name" required>
                 </div>
                 <div class="form-group">
                     <label for="description-input">Task Description:</label>
-                    <input type="text" id="description-input" required>
+                    <input type="text" id="description-input" name="task-description" required>
                 </div>
                 <div class="form-group">
                     <label for="deadline-input">Task Deadline:</label>
-                    <input type="datetime-local" id="deadline-input" required>
+                    <input type="datetime-local" id="deadline-input" name="task-deadline" required>
                 </div>
                 <button id="add-btn" type="submit">Add Task</button>
             </form>
@@ -74,18 +74,18 @@
                 <form id="edit-form">
                     <div class="form-group">
                         <label for="edit-name-input">Task Name:</label>
-                        <input type="text" id="edit-name-input" required>
+                        <input type="text" id="edit-name-input" name="edit-name" required>
                     </div>
                     <div class="form-group">
                         <label for="edit-description-input">Task Description:</label>
-                        <input type="text" id="edit-description-input" required>
+                        <input type="text" id="edit-description-input" name="edit-description" required>
                     </div>
                     <div class="form-group">
                         <label for="edit-deadline-input">Task Deadline:</label>
-                        <input type="datetime-local" id="edit-deadline-input" required>
+                        <input type="datetime-local" id="edit-deadline-input" name="edit-deadline" required>
                     </div>
                     <div class="btn-container">
-                        <button id="confirm-btn" class="confirm-btn">Confirm</button>
+                        <button id="confirm-btn" class="confirm-btn" type="submit">Confirm</button>
                         <button id="cancel-btn" class="cancel-btn">Cancel</button>
                     </div>
                 </form>
@@ -97,14 +97,14 @@
                 <h3>Add SubTask</h3>
                 <form id="subtask-form">
                     <label for="subtask-name">Name:</label>
-                    <input type="text" id="subtask-name" required />
+                    <input type="text" id="subtask-name" name="subtask-name" required />
                     <label for="subtask-description">Description:</label>
-                    <input type="text" id="subtask-description" />
+                    <input type="text" id="subtask-description" name="subtask-description" required />
                     <label for="subtask-deadline">Deadline:</label>
-                    <input type="datetime-local" id="subtask-deadline" required />
+                    <input type="datetime-local" id="subtask-deadline" name="subtask-deadline" required />
                     <div class="btn-container">
-                        <button id="confirm-btn" class="confirm-btn">Confirm</button>
-                        <button id="cancel-btn" class="cancel-btn">Cancel</button>
+                        <button id="confirm-btn" class="confirm-btn" type="submit">Add</button>
+                        <button id="cancel-btn" class="cancel-btn" type="submit">Cancel</button>
                     </div>
                 </form>
             </div>

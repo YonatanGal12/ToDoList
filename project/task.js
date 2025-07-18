@@ -1,8 +1,8 @@
 export class subTask {
     static _lastSubId = 0;
-    constructor(name, description, deadline, completed = false, date = new Date()) 
+    constructor(name, description, deadline, completed = false, date = new Date(), id= null) 
     {
-        this.id = ++subTask._lastSubId;
+        this.id = id ?? ++subTask._lastSubId;
         this.name = name;
         this.description = description;
         this.completed = completed;
@@ -66,6 +66,13 @@ export class Task
         return false;
     }
 
+    editSubTask(subId, name, description, deadline) {
+        const sub = this.subTasks.find((s) => (s.id === subId));
+        sub.name = name;
+        sub.description = description;
+        sub.deadline = deadline;
+    }
+
     toObject() 
     {
         return {
@@ -73,6 +80,7 @@ export class Task
             subTasks: this.subTasks,
             name: this.name,
             description: this.description,
+            completed: this.completed,
             deadline: this.deadline,
             date: this.date
         };
