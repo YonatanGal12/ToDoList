@@ -115,10 +115,12 @@ tr td{
 }
 
 
+
 .delete-btn{
     background-color: red;
     margin-right: 5px;
     margin-bottom: 10px;
+    margin-top: 10px;
     padding: 5px;
     width: 75px;
     border: 1px solid black;
@@ -150,7 +152,7 @@ tr td{
     border-radius: 5px;
 }
 
-.delete-btn,.edit-btn,.details-btn,.add-sub-btn,#yesBtn,#noBtn:hover{
+.delete-btn,.edit-btn,.details-btn,.add-sub-btn, #yesBtn,#noBtn:hover{
     cursor: pointer;
 }
 
@@ -213,6 +215,11 @@ h3{
 
 .completed-row input[type="checkbox"] {
   pointer-events: none;
+}
+
+.sub-row{
+    background-color: rgb(58, 71, 71);
+    margin-left: 20px;
 }
 
 .editModal{

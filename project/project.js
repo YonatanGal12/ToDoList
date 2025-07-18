@@ -67,12 +67,6 @@ document.addEventListener("DOMContentLoaded", () => {
         //then adds it to the tbody of the table.
         const row = document.createElement("tr");
 
-        if (task.completed) 
-        {
-            row.classList.add("completed-row");
-        }
-
-    
         row.innerHTML = `
             <td>${task.name}</td> 
             <td>${formatDate(task.date)}</td> 
@@ -87,6 +81,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 <button class="add-sub-btn" data-index="${task.id}">Add SubTask</button>
             </td>
         `;
+
+        if (task.completed) 
+        {
+            row.classList.add("completed-row");
+            row.querySelector(".complete-input").checked = true;
+        }
 
         const detailsBtn = row.querySelector(".details-btn");
         detailsBtn.textContent = tasksWithSubTasksShown.includes(task.id) ? "Hide Details" : "View Details";
@@ -105,108 +105,165 @@ document.addEventListener("DOMContentLoaded", () => {
         task.subTasks.forEach((sub) => {
             const newRow = document.createElement('tr');
 
-            if (sub.completed) 
-            {
-                row.classList.add("completed-row");
-            }
+            newRow.classList.add("sub-row")
             newRow.innerHTML = `
                 <td>${sub.name}</td> 
                 <td>${formatDate(sub.date)}</td> 
                 <td>${formatDate(sub.deadline)}</td> 
                 <td>
-                    <input type="checkbox" class="complete-input" data-type="subTask" data-index="${sub.id}">
+                    <input type="checkbox" class="sub complete-input" data-type="subTask" data-index="${sub.id}" data-parent="${task.id}">
                 </td> 
                 <td>
-                    <button class="delete-btn" data-index="${sub.id}">Delete</button>
-                    <button class="edit-btn" data-index="${sub.id}">Edit</button>
-                    <button class="details-btn" data-index="${sub.id}">View Details</button>
+                    <button class="sub delete-btn" data-index="${sub.id}" data-parent="${task.id}">Delete</button>
+                    <button class="sub edit-btn" data-index="${sub.id}" data-parent="${task.id}">Edit</button>
                 </td>
-            `
+            `;
+            if (sub.completed) 
+            {
+                newRow.classList.add("completed-row");
+                newRow.querySelector(".complete-input").checked = true;
+            }
             row.parentNode.insertBefore(newRow,row.nextSibling);
         })
     }
 
     tasksBody.addEventListener("click", (e) => {
         const btn = e.target;
-        
-
-        const taskId = Number(btn.dataset.index);
-        if(btn.classList.contains("delete-btn"))
+    
+        if(btn.classList.contains("sub"))
         {
-            manager.remove(taskId);
-            btn.closest("tr").remove();
-        }
-        else if(btn.classList.contains("edit-btn"))
-        {
-
-            const taskToEdit = manager.tasks.find((task) => task.id === taskId);
-            if (!taskToEdit) return;
-
-            taskIdBeingEdited = taskId;
-
-            document.getElementById("edit-name-input").value = taskToEdit.name;
-            document.getElementById("edit-description-input").value = taskToEdit.description;
-            document.getElementById("edit-deadline-input").value = new Date(taskToEdit.deadline);
-
-
-            const bounds = btn.getBoundingClientRect();
-            editModal.style.left = `${bounds.left + window.scrollX - 95}px`;
-            editModal.style.top = `${bounds.top + window.scrollY - 375}px`;
-            editModal.classList.add("show");
-        }
-        else if(btn.classList.contains("details-btn"))
-        {
-            if(btn.textContent.includes('View'))
+            const subTaskId = Number(btn.dataset.index);
+            const taskId = Number(btn.dataset.parent);
+            const task = manager.tasks.find((t) => t.id == taskId);
+            if(btn.classList.contains("delete-btn"))
             {
-                const taskToShow = manager.tasks.find((task) => task.id === taskId)
-                if (!taskToShow) return;
-                if (!tasksWithSubTasksShown.includes(taskId)) 
-                {
-                    tasksWithSubTasksShown.push(taskId);
-                }
-                applyAllFilters(); 
-                btn.textContent = "Hide Details";
+                task.removeSubTask(subTaskId);
+                manager.saveToStorage();
+                btn.closest("tr").remove();
             }
-            else
+            else if(btn.classList.contains("edit-btn"))
             {
-                const index = tasksWithSubTasksShown.indexOf(taskId);
-                if (index !== -1) tasksWithSubTasksShown.splice(index, 1);
-                applyAllFilters();
-            }
-        }
-        else if(btn.classList.contains("add-sub-btn"))
-        {
-            taskBeingAddedId = taskId;
-            const bounds = btn.getBoundingClientRect();
 
-            addSubTaskModal.style.left = `${bounds.left + window.scrollX - 169}px`;
-            addSubTaskModal.style.top = `${bounds.top + window.scrollY - 100}px`;
-            addSubTaskModal.classList.add("show");
-        }
-        else if(btn.classList.contains("complete-input"))
-        {
-            btn.checked = false;
-            // If someone pressed on another checkbox before choosing yes or no
-            if(lastClickedCheckbox && youSuremodal.classList.contains("show") && lastClickedCheckbox === btn)
+                const taskToEdit = manager.tasks.find((task) => task.id === taskId);
+                if (!taskToEdit) return;
+
+                taskIdBeingEdited = taskId;
+
+                document.getElementById("edit-name-input").value = taskToEdit.name;
+                document.getElementById("edit-description-input").value = taskToEdit.description;
+                document.getElementById("edit-deadline-input").value = new Date(taskToEdit.deadline);
+
+
+                const bounds = btn.getBoundingClientRect();
+                editModal.style.left = `${bounds.left + window.scrollX - 95}px`;
+                editModal.style.top = `${bounds.top + window.scrollY - 375}px`;
+                editModal.classList.add("show");
+            }
+            else if(btn.classList.contains("complete-input"))
             {
-                youSuremodal.classList.remove("show");
                 btn.checked = false;
-                lastClickedCheckbox = null;
-                return;
-            }
+                // If someone pressed on another checkbox before choosing yes or no
+                if(lastClickedCheckbox && youSuremodal.classList.contains("show") && lastClickedCheckbox === btn)
+                {
+                    youSuremodal.classList.remove("show");
+                    btn.checked = false;
+                    lastClickedCheckbox = null;
+                    return;
+                }
 
-            if(lastClickedCheckbox && lastClickedCheckbox !== btn)
+                if(lastClickedCheckbox && lastClickedCheckbox !== btn)
+                {
+                    lastClickedCheckbox.checked = false;
+                }
+
+                lastClickedCheckbox = btn;
+
+                const bounds = btn.getBoundingClientRect();
+
+                youSuremodal.style.left = `${bounds.left + window.scrollX - 169}px`;
+                youSuremodal.style.top = `${bounds.top + window.scrollY - 100}px`;
+                youSuremodal.classList.add("show");
+            }
+        }
+        else
+        {
+            const taskId = Number(btn.dataset.index);
+            if(btn.classList.contains("delete-btn"))
             {
-                lastClickedCheckbox.checked = false;
+                manager.remove(taskId);
+                btn.closest("tr").remove();
             }
+            else if(btn.classList.contains("edit-btn"))
+            {
 
-            lastClickedCheckbox = btn;
+                const taskToEdit = manager.tasks.find((task) => task.id === taskId);
+                if (!taskToEdit) return;
 
-            const bounds = btn.getBoundingClientRect();
+                taskIdBeingEdited = taskId;
 
-            youSuremodal.style.left = `${bounds.left + window.scrollX - 169}px`;
-            youSuremodal.style.top = `${bounds.top + window.scrollY - 100}px`;
-            youSuremodal.classList.add("show");
+                document.getElementById("edit-name-input").value = taskToEdit.name;
+                document.getElementById("edit-description-input").value = taskToEdit.description;
+                document.getElementById("edit-deadline-input").value = new Date(taskToEdit.deadline);
+
+
+                const bounds = btn.getBoundingClientRect();
+                editModal.style.left = `${bounds.left + window.scrollX - 95}px`;
+                editModal.style.top = `${bounds.top + window.scrollY - 375}px`;
+                editModal.classList.add("show");
+            }
+            else if(btn.classList.contains("details-btn"))
+            {
+                if(btn.textContent.includes('View'))
+                {
+                    const taskToShow = manager.tasks.find((task) => task.id === taskId)
+                    if (!taskToShow) return;
+                    if (!tasksWithSubTasksShown.includes(taskId)) 
+                    {
+                        tasksWithSubTasksShown.push(taskId);
+                    }
+                    applyAllFilters(); 
+                }
+                else
+                {
+                    const index = tasksWithSubTasksShown.indexOf(taskId);
+                    if (index !== -1) tasksWithSubTasksShown.splice(index, 1);
+                    applyAllFilters();
+                }
+            }
+            else if(btn.classList.contains("add-sub-btn"))
+            {
+                taskBeingAddedId = taskId;
+                const bounds = btn.getBoundingClientRect();
+
+                addSubTaskModal.style.left = `${bounds.left + window.scrollX - 169}px`;
+                addSubTaskModal.style.top = `${bounds.top + window.scrollY - 100}px`;
+                addSubTaskModal.classList.add("show");
+            }
+            else if(btn.classList.contains("complete-input"))
+            {
+                btn.checked = false;
+                // If someone pressed on another checkbox before choosing yes or no
+                if(lastClickedCheckbox && youSuremodal.classList.contains("show") && lastClickedCheckbox === btn)
+                {
+                    youSuremodal.classList.remove("show");
+                    btn.checked = false;
+                    lastClickedCheckbox = null;
+                    return;
+                }
+
+                if(lastClickedCheckbox && lastClickedCheckbox !== btn)
+                {
+                    lastClickedCheckbox.checked = false;
+                }
+
+                lastClickedCheckbox = btn;
+
+                const bounds = btn.getBoundingClientRect();
+
+                youSuremodal.style.left = `${bounds.left + window.scrollX - 169}px`;
+                youSuremodal.style.top = `${bounds.top + window.scrollY - 100}px`;
+                youSuremodal.classList.add("show");
+            }
         }
     })
 
@@ -214,21 +271,31 @@ document.addEventListener("DOMContentLoaded", () => {
         const btn = e.target;
         if(btn.classList.contains("yesBtn"))
         {
-
-            const taskId = Number(lastClickedCheckbox.dataset.index);
             const type = lastClickedCheckbox.dataset.type;
 
-            console.log(taskId);
             lastClickedCheckbox.closest("tr").classList.add("completed-row")
             lastClickedCheckbox.checked = true;
 
             if (type === "task") 
             {
+                const taskId = Number(lastClickedCheckbox.dataset.index);
                 manager.markComplete(taskId);
             } 
             else 
             {
-                console.log("Subtask clicked, not handled in markComplete.");
+                const taskId = Number(lastClickedCheckbox.dataset.parent);
+                console.log(taskId);
+                const subId = Number(lastClickedCheckbox.dataset.index);
+                console.log(subId);
+                const task = manager.tasks.find((t) => t.id === taskId);
+                const allComplete = task.markSubAsComplete(subId);
+                console.log(allComplete);
+                if(allComplete)
+                {
+                    task.completed = true;
+                    manager.saveToStorage();
+                    applyAllFilters();
+                }
             }
 
             lastClickedCheckbox = null;

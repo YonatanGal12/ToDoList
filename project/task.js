@@ -52,6 +52,20 @@ export class Task
         this.subTasks = this.subTasks.filter(sub => sub.id !== id);
     }
 
+    markSubAsComplete(subId)
+    {
+        const sub = this.subTasks.find((s) => s.id == subId);
+        if (sub) 
+        {
+            sub.completed = true;
+        }
+
+        const allCompleted = this.subTasks.every(s => s.completed);
+        if(allCompleted)
+            return true;
+        return false;
+    }
+
     toObject() 
     {
         return {
