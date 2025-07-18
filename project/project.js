@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     //Elements I need for stuff
     let lastClickedCheckbox = null;
     let taskIdBeingEdited = null;
+    let parentTaskOfEdited = null;
     let taskBeingAddedId = null;
 
     let tasksWithSubTasksShown = [];
@@ -76,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </td> 
             <td>
                 <button class="delete-btn" data-index="${task.id}">Delete</button>
-                <button class="edit-btn" data-index="${task.id}">Edit</button>
+                <button class="edit-btn" data-type="task" data-index="${task.id}">Edit</button>
                 <button class="details-btn" data-index="${task.id}">View Details</button>
                 <button class="add-sub-btn" data-index="${task.id}">Add SubTask</button>
             </td>
@@ -102,6 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function addRowsBelowTask(row, task)
     {
+        let lastInserted = row;
         task.subTasks.forEach((sub) => {
             const newRow = document.createElement('tr');
 
@@ -114,8 +116,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     <input type="checkbox" class="sub complete-input" data-type="subTask" data-index="${sub.id}" data-parent="${task.id}">
                 </td> 
                 <td>
-                    <button class="sub delete-btn" data-index="${sub.id}" data-parent="${task.id}">Delete</button>
-                    <button class="sub edit-btn" data-index="${sub.id}" data-parent="${task.id}">Edit</button>
+                    <button class="sub delete-btn" data-type="subTask" data-index="${sub.id}" data-parent="${task.id}">Delete</button>
+                    <button class="sub edit-btn" data-type="subTask" data-index="${sub.id}" data-parent="${task.id}">Edit</button>
                 </td>
             `;
             if (sub.completed) 
@@ -123,7 +125,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 newRow.classList.add("completed-row");
                 newRow.querySelector(".complete-input").checked = true;
             }
-            row.parentNode.insertBefore(newRow,row.nextSibling);
+            lastInserted.insertAdjacentElement("afterend", newRow);
+            lastInserted = newRow;
         })
     }
 
@@ -144,14 +147,17 @@ document.addEventListener("DOMContentLoaded", () => {
             else if(btn.classList.contains("edit-btn"))
             {
 
-                const taskToEdit = manager.tasks.find((task) => task.id === taskId);
-                if (!taskToEdit) return;
+                const task = manager.tasks.find((task) => task.id === taskId);
 
-                taskIdBeingEdited = taskId;
+                const subTask = task.subTasks.find((sub) => sub.id === subTaskId);
+                console.log("Editing subtask", { taskId, subTaskId: btn.dataset.index });
 
-                document.getElementById("edit-name-input").value = taskToEdit.name;
-                document.getElementById("edit-description-input").value = taskToEdit.description;
-                document.getElementById("edit-deadline-input").value = new Date(taskToEdit.deadline);
+                taskIdBeingEdited = subTaskId;
+                parentTaskOfEdited = taskId;
+                
+                document.getElementById("edit-name-input").value = subTask.name;
+                document.getElementById("edit-description-input").value = subTask.description;
+                document.getElementById("edit-deadline-input").value = toLocalDatetimeString(new Date(subTask.deadline));
 
 
                 const bounds = btn.getBoundingClientRect();
@@ -201,9 +207,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 taskIdBeingEdited = taskId;
 
-                document.getElementById("edit-name-input").value = taskToEdit.name;
-                document.getElementById("edit-description-input").value = taskToEdit.description;
-                document.getElementById("edit-deadline-input").value = new Date(taskToEdit.deadline);
+                editForm.querySelector("#edit-name-input").value = taskToEdit.name;
+                editForm.querySelector("#edit-description-input").value = taskToEdit.description;
+                editForm.querySelector("#edit-deadline-input").value = toLocalDatetimeString(new Date(taskToEdit.deadline));
+                
 
 
                 const bounds = btn.getBoundingClientRect();
@@ -233,10 +240,17 @@ document.addEventListener("DOMContentLoaded", () => {
             else if(btn.classList.contains("add-sub-btn"))
             {
                 taskBeingAddedId = taskId;
+                console.log("Dadasd");
+
+                addSubForm.querySelector("#subtask-name").value = null;
+                addSubForm.querySelector("#subtask-description").value = null;
+                addSubForm.querySelector("#subtask-deadline").value = null;
+
+
                 const bounds = btn.getBoundingClientRect();
 
-                addSubTaskModal.style.left = `${bounds.left + window.scrollX - 169}px`;
-                addSubTaskModal.style.top = `${bounds.top + window.scrollY - 100}px`;
+                addSubTaskModal.style.left = `${bounds.left + window.scrollX - 80}px`;
+                addSubTaskModal.style.top = `${bounds.top + window.scrollY - 340}px`;
                 addSubTaskModal.classList.add("show");
             }
             else if(btn.classList.contains("complete-input"))
@@ -284,12 +298,11 @@ document.addEventListener("DOMContentLoaded", () => {
             else 
             {
                 const taskId = Number(lastClickedCheckbox.dataset.parent);
-                console.log(taskId);
                 const subId = Number(lastClickedCheckbox.dataset.index);
-                console.log(subId);
                 const task = manager.tasks.find((t) => t.id === taskId);
+
                 const allComplete = task.markSubAsComplete(subId);
-                console.log(allComplete);
+                console.log(allComplete)
                 if(allComplete)
                 {
                     task.completed = true;
@@ -313,52 +326,94 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 
     editModal.addEventListener("click", (e) => {
-        e.preventDefault();
         const btn = e.target;
+        if(btn.classList.contains("cancel-btn"))
+        {
+            taskIdBeingEdited = null;
+            parentTaskOfEdited = null;
+            editModal.classList.remove("show");
+        }
+    })
 
+    editModal.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const btn = e.submitter;
+        console.log("here");    
         if(btn.classList.contains("confirm-btn"))
         {
             const taskName = editForm.querySelector("#edit-name-input").value.trim();
             const taskDesc = editForm.querySelector("#edit-description-input").value.trim();
             const taskDeadline = new Date(editForm.querySelector("#edit-deadline-input").value.trim());
-
             if(!taskName || !taskDesc || !taskDeadline)
             {
                 console.error("Invalid inputs. Please try again.");
                 return;
             }
-
-            //If deadline is before today, it's invalid.
+            //If deadline is before today, invalid.
             if(taskDeadline < new Date())
             {
                 console.error("Cannot go back in time.");
                 return;
             }
-            manager.editTask(taskIdBeingEdited,taskName,taskDesc,taskDeadline);
-            applyAllFilters();
-            editModal.classList.remove("show");
+            const currTask = manager.tasks.find((t) => t.id === parentTaskOfEdited);
+            if(taskDeadline > currTask.deadline)
+            {
+                console.error("Cannot set deadline after parent tasks'");
+                return;
+            }
+            if(parentTaskOfEdited === null)
+            {
+                manager.editTask(taskIdBeingEdited,taskName,taskDesc,taskDeadline);
+                applyAllFilters();
+                editModal.classList.remove("show");
+                taskIdBeingEdited = null;
+                parentTaskOfEdited = null;
+            }
+            else
+            {
+                const taskId = parentTaskOfEdited;
+                const subTaskId = taskIdBeingEdited;
+                const task = manager.tasks.find((t) => t.id === taskId);
+                task.editSubTask(subTaskId,taskName,taskDesc,taskDeadline);
+                manager.saveToStorage();
+                applyAllFilters();
+                editModal.classList.remove("show");
+                taskIdBeingEdited = null;
+                parentTaskOfEdited = null;
+            }
         }
         else if(btn.classList.contains("cancel-btn"))
         {
             taskIdBeingEdited = null;
+            parentTaskOfEdited = null;
             editModal.classList.remove("show");
         }
     })
 
-    addSubTaskModal.addEventListener("click", (e) => {
-        e.preventDefault();
+    addSubTaskModal.addEventListener("click",(e) => {
         const btn = e.target;
-        if(btn.classList.contains("confirm-btn"))
+        if(btn.classList.contains("cancel-btn"))
         {
             console.log("here");
-            const subName = addSubForm.querySelector("#subtask-name").value.trim();
-            const subDesc = addSubForm.querySelector("#subtask-description").value.trim();
-            const subDeadline = new Date(addSubForm.querySelector("#subtask-deadline").value.trim());
-            if(!subName || !subDesc || !subDeadline)
-            {
-                console.error("Invalid inputs. Please try again.");
-                return;
-            }
+            taskBeingAddedId = null;
+            addSubTaskModal.classList.remove("show");
+        }
+    })
+    addSubTaskModal.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const btn = e.submitter;
+        console.log("Dadasd");
+        const subName = addSubForm.querySelector("#subtask-name").value.trim();
+        const subDesc = addSubForm.querySelector("#subtask-description").value.trim();
+        const subDeadline = new Date(addSubForm.querySelector("#subtask-deadline").value.trim());
+        if(!subName || !subDesc || !subDeadline)
+        {
+            console.error("Invalid inputs. Please try again.");
+            return;
+        }
+        
+        if(btn.classList.contains("confirm-btn"))
+        {
             const currTask = manager.tasks.find((t) => t.id == taskBeingAddedId)
             if(subDeadline < new Date())
             {
@@ -372,12 +427,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             currTask.addSubTask(new subTask(subName,subDesc,subDeadline));
             manager.saveToStorage();
-            addSubTaskModal.classList.remove("show");
-        }
-        else if(btn.classList.contains("cancel-btn"))
-        {
-            console.log("here");
-            taskBeingAddedId = null;
+            applyAllFilters();
             addSubTaskModal.classList.remove("show");
         }
     })
