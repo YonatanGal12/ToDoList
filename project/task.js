@@ -1,6 +1,6 @@
 export class subTask {
     static _lastSubId = 0;
-    constructor(name, description, deadline, completed = false, date = new Date(), id= null) 
+    constructor(name, description, deadline, completed = false, date = new Date(), id = null) 
     {
         this.id = id ?? ++subTask._lastSubId;
         this.name = name;
