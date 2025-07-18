@@ -8,21 +8,25 @@ import { TasksManager } from './manager.js';
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    //Represents the form
+    //Represents the forms
     const form = document.getElementById("list-form");
     const editForm = document.getElementById("edit-form");
+    const addSubForm = document.getElementById("subtask-form");
+
     //Represents that table's body
     const tasksBody = document.getElementById("tasks-body");
 
     //Create the modals
     const youSuremodal = document.getElementById("youSure");
     const editModal = document.getElementById("editModal");
-
+    const addSubTaskModal = document.getElementById("subtask-modal");
 
     //Elements I need for stuff
     let lastClickedCheckbox = null;
     let taskIdBeingEdited = null;
+    let taskBeingAddedId = null;
 
+    let tasksWithSubTasksShown = [];
 
 
     const manager = new TasksManager();
@@ -53,8 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const task = new Task(taskName,taskDesc,taskDeadline);
         manager.add(task);
-        //addTaskToTable(task);
-        applySort();
+        applyAllFilters();
         form.reset();
     })
 
@@ -69,12 +72,13 @@ document.addEventListener("DOMContentLoaded", () => {
             row.classList.add("completed-row");
         }
 
+    
         row.innerHTML = `
             <td>${task.name}</td> 
             <td>${formatDate(task.date)}</td> 
             <td>${formatDate(task.deadline)}</td> 
             <td>
-                <input type="checkbox" class="complete-input" data-type="task" data-index="${task.id}" id="complete-input">
+                <input type="checkbox" class="complete-input" data-type="task" data-index="${task.id}">
             </td> 
             <td>
                 <button class="delete-btn" data-index="${task.id}">Delete</button>
@@ -83,6 +87,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 <button class="add-sub-btn" data-index="${task.id}">Add SubTask</button>
             </td>
         `;
+
+        const detailsBtn = row.querySelector(".details-btn");
+        detailsBtn.textContent = tasksWithSubTasksShown.includes(task.id) ? "Hide Details" : "View Details";
+
         tasksBody.appendChild(row);
         return row;
     }
@@ -106,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td>${formatDate(sub.date)}</td> 
                 <td>${formatDate(sub.deadline)}</td> 
                 <td>
-                    <input type="checkbox" class="complete-input" data-type="subTask" data-index="${sub.id} id="complete-input">
+                    <input type="checkbox" class="complete-input" data-type="subTask" data-index="${sub.id}">
                 </td> 
                 <td>
                     <button class="delete-btn" data-index="${sub.id}">Delete</button>
@@ -152,27 +160,28 @@ document.addEventListener("DOMContentLoaded", () => {
             {
                 const taskToShow = manager.tasks.find((task) => task.id === taskId)
                 if (!taskToShow) return;
-
-                taskToShow.addSubTask(new subTask("blah","blahblah", new Date()));
-                taskToShow.addSubTask(new subTask("blah1111","blahblah1111", new Date()));
-                addRowsBelowTask(btn.closest("tr"), taskToShow);
+                if (!tasksWithSubTasksShown.includes(taskId)) 
+                {
+                    tasksWithSubTasksShown.push(taskId);
+                }
+                applyAllFilters(); 
                 btn.textContent = "Hide Details";
             }
             else
             {
-                deleteAllTable();
-                manager.tasks.forEach((task) => {
-                    if (task.id !== taskId) 
-                    {
-                        const row = addTaskToTable(task);
-                        addRowsBelowTask(row, task); 
-                    } else 
-                    {
-                        addTaskToTable(task); 
-                    }
-                });
-                btn.textContent = "View Details";
+                const index = tasksWithSubTasksShown.indexOf(taskId);
+                if (index !== -1) tasksWithSubTasksShown.splice(index, 1);
+                applyAllFilters();
             }
+        }
+        else if(btn.classList.contains("add-sub-btn"))
+        {
+            taskBeingAddedId = taskId;
+            const bounds = btn.getBoundingClientRect();
+
+            addSubTaskModal.style.left = `${bounds.left + window.scrollX - 169}px`;
+            addSubTaskModal.style.top = `${bounds.top + window.scrollY - 100}px`;
+            addSubTaskModal.classList.add("show");
         }
         else if(btn.classList.contains("complete-input"))
         {
@@ -259,13 +268,50 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
             manager.editTask(taskIdBeingEdited,taskName,taskDesc,taskDeadline);
-            applySort();
+            applyAllFilters();
             editModal.classList.remove("show");
         }
         else if(btn.classList.contains("cancel-btn"))
         {
             taskIdBeingEdited = null;
             editModal.classList.remove("show");
+        }
+    })
+
+    addSubTaskModal.addEventListener("click", (e) => {
+        e.preventDefault();
+        const btn = e.target;
+        if(btn.classList.contains("confirm-btn"))
+        {
+            console.log("here");
+            const subName = addSubForm.querySelector("#subtask-name").value.trim();
+            const subDesc = addSubForm.querySelector("#subtask-description").value.trim();
+            const subDeadline = new Date(addSubForm.querySelector("#subtask-deadline").value.trim());
+            if(!subName || !subDesc || !subDeadline)
+            {
+                console.error("Invalid inputs. Please try again.");
+                return;
+            }
+            const currTask = manager.tasks.find((t) => t.id == taskBeingAddedId)
+            if(subDeadline < new Date())
+            {
+                console.error("Cannot go back in time.");
+                return;
+            }
+            if(subDeadline > currTask.deadline)
+            {
+                console.error("Cannot set deadline to be after the task's deadline.");
+                return;
+            }
+            currTask.addSubTask(new subTask(subName,subDesc,subDeadline));
+            manager.saveToStorage();
+            addSubTaskModal.classList.remove("show");
+        }
+        else if(btn.classList.contains("cancel-btn"))
+        {
+            console.log("here");
+            taskBeingAddedId = null;
+            addSubTaskModal.classList.remove("show");
         }
     })
 
@@ -284,56 +330,48 @@ document.addEventListener("DOMContentLoaded", () => {
             {
                 editModal.classList.remove("show");
             }
+            if(addSubTaskModal.classList.contains("show") && !addSubTaskModal.contains(e.target)
+            && !e.target.classList.contains("add-sub-btn"))
+            {
+                addSubTaskModal.classList.remove("show");
+            }
         },1)
     })
 
 
     const sortSelect = document.getElementById("sort-select");
-    sortSelect.addEventListener("change",applySort);
-
-    function applySort()
-    {
-        if(sortSelect.value === "name")
-        {
-            const sorted = manager.tasks.sort((a,b) => a.name.localeCompare(b.name));
-            deleteAllTable();
-            sorted.forEach((t) => addTaskToTable(t));
-        }
-        else if(sortSelect.value === "dateAdded")
-        {
-            const sorted = manager.tasks.sort((a,b) => new Date(a.date) - new Date(b.date));
-            deleteAllTable();
-            sorted.forEach((t) => addTaskToTable(t));
-        }
-        else if(sortSelect.value === "deadline")
-        {
-            const sorted = manager.tasks.sort((a,b) => new Date(a.deadline) - new Date(b.deadline));
-            deleteAllTable();
-            sorted.forEach((t) => addTaskToTable(t));
-        }
-    }
-
+    sortSelect.addEventListener("change",applyAllFilters);
     const whatToShow = document.getElementById("filter-select");
-    whatToShow.addEventListener("change", showRightTasks);
-    function showRightTasks()
+    whatToShow.addEventListener("change", applyAllFilters);
+
+    function applyAllFilters()
     {
-        if(sortSelect.value === "complete")
+        let tasksToShow = [...manager.tasks];
+
+        if (whatToShow.value === "complete") 
         {
-            const showed = manager.tasks.filter((task) => task.completed);
-            deleteAllTable();
-            showed.forEach((t) => addTaskToTable(t));
-        }
-        else if(sortSelect.value === "incomplete")
+            tasksToShow = tasksToShow.filter(task => task.completed);
+        } else if (whatToShow.value === "incomplete") 
         {
-            const showed = manager.tasks.filter((task) => !task.completed);
-            deleteAllTable();
-            showed.forEach((t) => addTaskToTable(t));
+            tasksToShow = tasksToShow.filter(task => !task.completed);
         }
-        else
+
+        if (sortSelect.value === "name") 
         {
-            const showed = manager.tasks;
-            deleteAllTable();
-            showed.forEach((t) => addTaskToTable(t));
+            tasksToShow.sort((a, b) => a.name.localeCompare(b.name));
+        } else if (sortSelect.value === "dateAdded") 
+        {
+            tasksToShow.sort((a, b) => new Date(a.date) - new Date(b.date));
+        } else if (sortSelect.value === "deadline") 
+        {
+            tasksToShow.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
         }
+
+        deleteAllTable();
+        tasksToShow.forEach(task => {
+            const row = addTaskToTable(task);
+            if(tasksWithSubTasksShown.find((Id) => Id == task.id))
+                addRowsBelowTask(row,task);
+        });
     }
 })

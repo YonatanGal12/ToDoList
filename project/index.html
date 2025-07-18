@@ -84,7 +84,25 @@
                         <label for="edit-deadline-input">Task Deadline:</label>
                         <input type="datetime-local" id="edit-deadline-input" required>
                     </div>
-                    <div class="btnContainer">
+                    <div class="btn-container">
+                        <button id="confirm-btn" class="confirm-btn">Confirm</button>
+                        <button id="cancel-btn" class="cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="subtask-modal" class="subtask-modal hidden">
+            <div class="modal-content">
+                <h3>Add SubTask</h3>
+                <form id="subtask-form">
+                    <label for="subtask-name">Name:</label>
+                    <input type="text" id="subtask-name" required />
+                    <label for="subtask-description">Description:</label>
+                    <input type="text" id="subtask-description" />
+                    <label for="subtask-deadline">Deadline:</label>
+                    <input type="datetime-local" id="subtask-deadline" required />
+                    <div class="btn-container">
                         <button id="confirm-btn" class="confirm-btn">Confirm</button>
                         <button id="cancel-btn" class="cancel-btn">Cancel</button>
                     </div>
@@ -92,7 +110,5 @@
             </div>
         </div>
     </div>
-
-
 </body>
 </html>
