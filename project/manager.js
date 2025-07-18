@@ -43,6 +43,12 @@ export class TasksManager {
 
     loadFromStorage() {
         const raw = JSON.parse(localStorage.getItem("tasks")) || [];
+        this.tasks = raw.map((t) => {
+            return new Task(
+            t.name, t.description, t.deadline, t.subTasks, t.completed, t.date
+            );
+        })
+        /*const raw = JSON.parse(localStorage.getItem("tasks")) || [];
         this.tasks = raw.map(t => {
             const restoredSubTasks = (t.subTasks || []).map(s =>
             new subTask(s.name, s.description, s.deadline, s.completed, s.date)
@@ -50,6 +56,6 @@ export class TasksManager {
             return new Task(
             t.name, t.description, t.deadline, restoredSubTasks, t.completed, t.date
             );
-        });
+        });*/
     }
 }

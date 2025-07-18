@@ -224,11 +224,12 @@ h3{
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.btnContainer{
+.btn-container{
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
+    margin-top: 10px;
 }
 #confirm-btn{
     background-color: rgb(24, 151, 7);
@@ -259,4 +260,14 @@ h3{
 #edit-deadline-input:hover{
    cursor: pointer;
 }
+
+.subtask-modal{
+    position: absolute;
+    padding: 10px;
+    background-color: rgb(54, 63, 63);
+    border: 1px solid black;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
 
