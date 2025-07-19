@@ -50,15 +50,18 @@ export class Task
     removeSubTask(id) 
     {
         this.subTasks = this.subTasks.filter(sub => sub.id !== id);
+        if(this.subTasks.length === 0)
+            return;
+        const allCompleted = this.subTasks.every(s => s.completed);
+        if(allCompleted)
+            this.completed = true;
     }
 
     markSubAsComplete(subId)
     {
-        const sub = this.subTasks.find((s) => s.id == subId);
+        const sub = this.subTasks.find(s => s.id == subId);
         if (sub) 
-        {
             sub.completed = true;
-        }
 
         const allCompleted = this.subTasks.every(s => s.completed);
         if(allCompleted)
@@ -66,8 +69,9 @@ export class Task
         return false;
     }
 
-    editSubTask(subId, name, description, deadline) {
-        const sub = this.subTasks.find((s) => (s.id === subId));
+    editSubTask(subId, name, description, deadline) 
+    {
+        const sub = this.subTasks.find(s => s.id === subId);
         sub.name = name;
         sub.description = description;
         sub.deadline = deadline;

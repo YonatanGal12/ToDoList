@@ -35,6 +35,7 @@
         <div class="tasks-list">
             <h2>Task List</h2>
             <div class="filters-container">
+                <h3>Filter:</h3>
                 <select name="filter-select" id="filter-select">
                     <option value="all">Show All Tasks</option>
                     <option value="complete">Show Completed Tasks Only</option>
@@ -49,8 +50,9 @@
             </div>
             <table class="tasks-table">
                 <thead>
-                    <tr>
+                    <tr id="top-tr">
                         <th>Name</th>
+                        <th>Description</th>
                         <th>Date Added</th>
                         <th>Deadline</th>
                         <th>Task Complete?</th>
@@ -62,7 +64,7 @@
         
         <div class="youSureModal hidden" id="youSure">
             <h3>Are you sure you want to mark as complete?</h3>
-            <div class="insideYouSure">
+            <div class="btn-container">
                 <button id="yesBtn" class="yesBtn">Yes</button>
                 <button id="noBtn" class="noBtn">No</button>
             </div>
