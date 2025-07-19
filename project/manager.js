@@ -1,35 +1,49 @@
-// manager.js
 import { Task, subTask } from './task.js';
 
-export class TasksManager {
-    constructor() {
+export class TasksManager 
+{
+    constructor() 
+    {
         this.tasks = [];
     }
 
-    add(task) {
+    add(task) 
+    {
         this.tasks.push(task);
         this.saveToStorage();
     }
 
-    remove(id) {
+    remove(id) 
+    {
         this.tasks = this.tasks.filter(task => task.id !== id);
+        if (this.tasks.length === 0) 
+        {
+            Task._lastId = 0; 
+        } 
+        else 
+        {
+            const allTaskIds = this.tasks.map(t => t.id);
+            Task._lastId = Math.max(0, ...allTaskIds);
+        }
         this.saveToStorage();
     }
 
-    markComplete(id) {
+    markComplete(id) 
+    {
         const task = this.tasks.find(task => task.id === id);
-        if (task) {
+        if (task) 
+        {
             task.completed = true;
-            task.subTasks.forEach(sub => {
-                sub.completed = true;
-            });
+            task.subTasks.forEach(sub => sub.completed = true);
             this.saveToStorage();
         }
     }
 
-    editTask(id, name, description, deadline) {
+    editTask(id, name, description, deadline) 
+    {
         const task = this.tasks.find(t => t.id === id);
-        if (task) {
+        if (task) 
+        {
             task.name = name;
             task.description = description;
             task.deadline = deadline;
@@ -37,32 +51,23 @@ export class TasksManager {
         }
     }
 
-    saveToStorage() {
+    saveToStorage() 
+    {
         localStorage.setItem("tasks", JSON.stringify(this.tasks.map(t => t.toObject())));
     }
 
-    loadFromStorage() {
+    loadFromStorage() 
+    {
         const data = JSON.parse(localStorage.getItem("tasks"));
         if (data && Array.isArray(data)) {
             this.tasks = data.map(t => {
-                const task = new Task(
-                    t.name,
-                    t.description,
-                    new Date(t.deadline),
-                    [],
-                    t.completed,
-                    new Date(t.date),
-                    t.id
+                const task = new Task(t.name,t.description,new Date(t.deadline),
+                    [],t.completed,new Date(t.date),t.id
                 );
 
                 task.subTasks = (t.subTasks || []).map(st => {
-                    const sub = new subTask(
-                        st.name,
-                        st.description,
-                        new Date(st.deadline),
-                        st.completed,
-                        new Date(st.date),
-                        st.id
+                    const sub = new subTask(st.name,st.description,new Date(st.deadline),
+                        st.completed,new Date(st.date),st.id
                     );
                     return sub;
                 });
@@ -70,7 +75,6 @@ export class TasksManager {
                 return task;
             });
 
-            // Update last used IDs to avoid duplicates
             const allTaskIds = this.tasks.map(t => t.id);
             Task._lastId = Math.max(0, ...allTaskIds);
 

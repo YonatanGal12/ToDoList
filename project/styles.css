@@ -12,13 +12,13 @@ body{
 }
 
 .container{
-    min-width: 1200px;
+    min-width: 1400px;
     width: 50%;
     margin: 0 auto;
     background-color: rgb(54, 63, 63);
     padding: 15px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
 }
 
 h1{
@@ -34,8 +34,6 @@ h1{
     margin-bottom: 20px;
 }
 
-
-
 .form-group{
     margin-bottom: 15px;
 }
@@ -50,12 +48,11 @@ input{
     width: 100%;
     padding: 7px;
     font-size: 1rem;
-    border: 1px solid #1a1818;
+    border: 1px solid black;
     border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0,0 ,0 ,0.1 );
+    box-shadow: 0 0 10px rgba(0,0 ,0 ,0.1);
     color: black;
 }
-
 
 #add-btn{
     background-color: rgb(75, 149, 149);
@@ -75,6 +72,7 @@ h2{
     text-align: center;
     font-size: 1.7rem;
 }
+
 .tasks-list{
     padding: 15px;
     background-color: rgb(70, 86, 86);
@@ -82,24 +80,22 @@ h2{
     margin-bottom: 20px;
 }
 
-
 #filter-select, #sort-select{
     background-color: rgb(70, 86, 86);
     padding: 5px;
-    display: inline;
     border: 1px solid black;
     border-radius: 5px;
 }
 
 .filters-container{
     display: flex;
+    margin-left: 23px;
     gap: 10px;
 }
 
 .tasks-table{
     width: 100%;
     border-collapse: collapse;
-    border: 5px;
     margin-top: 15px;
     font-size: 1rem;
 }
@@ -113,14 +109,10 @@ tr td{
    text-align: center; 
    margin-bottom: 10px;
 }
-
-
-
+ 
 .delete-btn{
     background-color: red;
-    margin-right: 5px;
-    margin-bottom: 10px;
-    margin-top: 10px;
+    margin: 10px 5px 10px 0;
     padding: 5px;
     width: 75px;
     border: 1px solid black;
@@ -146,21 +138,16 @@ tr td{
 
 .add-sub-btn{
     background-color: rgb(75, 149, 149);
-    width: 125px;
+    font-weight: bolder;
+    width: 50px;
     padding: 5px;
     border: 1px solid black;
     border-radius: 5px;
 }
 
-.delete-btn,.edit-btn,.details-btn,.add-sub-btn, #yesBtn,#noBtn:hover{
+.delete-btn,.edit-btn,.details-btn,.add-sub-btn,#yesBtn,#noBtn:hover{
     cursor: pointer;
 }
-
-#complete-input{
-    background-color: rgb(70, 86, 86);
-    width: 5%;
-}
-
 
 .hidden{
     display: none;
@@ -170,27 +157,20 @@ tr td{
     display: block;
 }
 
-
-
 .youSureModal{
     position: absolute;
     padding: 10px;
     background-color: rgb(54, 63, 63);
     border: 1px solid black;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
 h3{
+    text-align: center;
     margin-bottom: 5px;
 }
 
-.insideYouSure{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-}
 #yesBtn{
     background-color: rgb(24, 151, 7);
     border: 1px solid black;
@@ -208,9 +188,9 @@ h3{
 }
 
 .completed-row {
-  text-decoration: line-through;
-  color: gray;
-  opacity: 0.6;
+    text-decoration: line-through;
+    color: gray;
+    opacity: 0.6;
 }
 
 .completed-row input[type="checkbox"] {
@@ -238,6 +218,7 @@ h3{
     gap: 10px;
     margin-top: 10px;
 }
+
 #confirm-btn{
     background-color: rgb(24, 151, 7);
     width: 40%;
@@ -277,13 +258,7 @@ h3{
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-input[type="datetime-local"] {
-    color: black;
-    background-color: white;
-    cursor: text;
-}
-
-*:focus {
+*:focus{
     outline: 2px solid rgb(75, 149, 149);
 }
 
@@ -291,6 +266,10 @@ input[type="datetime-local"] {
     text-decoration: line-through;
     color: red;
     opacity: 0.6;
+}
+
+tr:not(#top-tr):hover{
+    background-color: rgb(75, 149, 149);
 }
 
 
